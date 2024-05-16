@@ -1,47 +1,55 @@
 #!/usr/bin/python3
-
+"""
+Log parsing:reads stdin line by line and computes metrics
+"""
 import sys
-from collections import defaultdict
 
-# Initialize variables
-total_size = 0
-status_codes = defaultdict(int)
+
 line_count = 0
+total_size = 0
+status_codes = {
+    '200': 0,
+    '301': 0,
+    '400': 0,
+    '401': 0,
+    '403': 0,
+    '404': 0,
+    '405': 0,
+    '500': 0
+}
+
+
+def print_status():
+    """
+    a Helper function to output status
+    """
+    print(f"File size: {total_size}")
+
+    for code, count in status_codes.items():
+        if count > 0:
+            print(f"{code}: {count}")
+
 
 try:
-    # Read input
     for line in sys.stdin:
-        line = line.strip()
+        if line_count == 10:
+            print_status()
+            line_count = 0
 
-        # Check if line matches the expected format
-        if not line.startswith('"GET /projects/260 HTTP/1.1"'):
-            continue
+        line = line.rstrip()
+        line_parts = line.split()
 
-        # Extract file size and status code from the line
-        parts = line.split()
-        if len(parts) < 8:
-            continue
+        if len(line_parts) > 4:
+            code = line_parts[-2]
+            total_size += int(line_parts[-1])
 
-        file_size = int(parts[-2])
-        status_code = int(parts[-3])
+            # Collate the number of lines per status code
+            if code in status_codes:
+                status_codes[code] += 1
 
-        # Update metrics
-        total_size += file_size
-        status_codes[status_code] += 1
-
-        line_count += 1
-
-        # Print statistics after every 10 lines
-        if line_count % 10 == 0:
-            print(f"Total file size: {total_size}")
-            for code in sorted(status_codes.keys()):
-                print(f"{code}: {status_codes[code]}")
-
-    # Print final statistics
-    print(f"Total file size: {total_size}")
-    for code in sorted(status_codes.keys()):
-        print(f"{code}: {status_codes[code]}")
-
-except KeyboardInterrupt:
-    # Handle keyboard interruption (CTRL + C)
-    print("Keyboard interruption detected")
+            # Increment the log count
+            line_count += 1
+except Exception:
+    pass
+finally:
+    print_status()
