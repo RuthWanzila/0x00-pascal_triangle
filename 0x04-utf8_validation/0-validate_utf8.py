@@ -7,30 +7,34 @@ def validUTF8(data):
     Method that determines if a given data set represents a valid
     UTF-8 encoding.
     """
-  i = 0
-  n = 0
+    bytes_no. = 0
 
-  while i < len(data):
-    b = data[i] & 255
-    
-    if n == 0:
-      if b & 128 == 0: 
-        i += 1
-        continue
-      elif b & 192 == 192:  
-        n = 1  
-      elif b & 224 == 224:    
-        n = 2
-      elif b & 240 == 240:    
-        n = 3
-      else:
-        return False
-      
-    else:      
-      if b & 192 != 128:
-        return False
-      n -= 1
-      
-    i += 1
+    bitsmask1 = 1 << 7
+    bitsmask2 = 1 << 6
 
-  return n == 0
+    for i in data:
+
+        bitsmask_byte = 1 << 7
+
+        if bytes_no. == 0:
+
+            while bitsmask_byte & i:
+                bytes_no. += 1
+                bitsmask_byte = bitsmask_byte >> 1
+
+            if bytes_no. == 0:
+                continue
+
+            if bytes_no. == 1 or bytes_no. > 4:
+                return False
+
+        else:
+            if not (i & bitsmask1 and not (i & bitsmask2)):
+                    return False
+
+        bytes_no. -= 1
+
+    if bytes_no. == 0:
+        return True
+
+    return False
