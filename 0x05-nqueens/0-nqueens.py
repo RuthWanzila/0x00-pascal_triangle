@@ -1,50 +1,51 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+"""Solve the N Queens problem"""
 
-import sys
+import argparse
+from typing import List
 
-def print_board(board):
-   print([[row, col] for row, col in board])
+def validate_input(n: int) -> None:
+    """Validate input board size"""
+    if not n.isdigit():
+        print("N must be a number")
+        exit(1)
+    if int(n) < 4:
+        print("N must be at least 4")
+        exit(1)
 
-def is_valid(board, row, col):
-   # Check column
-   for row_idx, c in board:
-       if c == col:
-           return False
-           
-   # Check diagonals 
-   for r, c in board:  
-       if abs(row - r) == abs(col - c):
-           return False
-           
-   return True
+def queens(
+    board_size: int, 
+    row_index: int = 0,
+    queens_cols: List[int] = [],
+    diag1: List[int] = [], 
+    diag2: List[int] = []
+) -> List[List[int]]:
+    """Find all possible queen placements on the board"""
+    if row_index < board_size:
+        for col in range(board_size): 
+            if col not in queens_cols and 
+                row_index + col not in diag1 and
+                row_index - col not in diag2:
+                yield from queens(
+                    board_size, row_index+1, 
+                    queens_cols + [col], 
+                    diag1 + [row_index+col],
+                    diag2 + [row_index-col]
+                )
+    else:
+        yield queens_cols
 
-def solve_nqueens(n):
-   if n < 4:
-       print("N must be at least 4")
-       sys.exit(1)
-        
-   if not n.isnumeric():
-       print("N must be a number")
-       sys.exit(1)
-        
-   board = []   
-   backtrack(board, 0, n)
-   
-def backtrack(board, row, n):
-   if row == n:
-       print_board(board)
-       return
-        
-   for col in range(n):
-       if is_valid(board, row, col):
-           board.append([row, col])
-           backtrack(board, row+1, n)  
-           board.pop()
-           
+def solve(board_size: int) -> None:
+    """Solve the N Queens problem and print solutions"""
+    for solution in queens(board_size):
+        print(solution)
+
 if __name__ == '__main__':
-   if len(sys.argv) != 2:
-       print("Usage: nqueens N")
-       sys.exit(1)
-        
-   n = int(sys.argv[1])   
-   solve_nqueens(n)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("n", type=int, help="Board size")
+    args = parser.parse_args()
+    
+    n = args.n
+    validate_input(n)
+    
+    solve(n)
