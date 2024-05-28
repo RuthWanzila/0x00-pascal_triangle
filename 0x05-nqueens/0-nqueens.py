@@ -1,51 +1,44 @@
-#!/usr/bin/env python3
-"""Solve the N Queens problem"""
+#!/usr/bin/python3
+""" N queens  puzzle"""
+import sys
 
-import argparse
-from typing import List
 
-def validate_input(n: int) -> None:
-    """Validate input board size"""
-    if not n.isdigit():
-        print("N must be a number")
-        exit(1)
-    if int(n) < 4:
-        print("N must be at least 4")
-        exit(1)
+if len(sys.argv) > 2 or len(sys.argv) < 2:
+    print("Usage: nqueens N")
+    exit(1)
 
-def queens(
-    board_size: int, 
-    row_index: int = 0,
-    queens_cols: List[int] = [],
-    diag1: List[int] = [], 
-    diag2: List[int] = []
-) -> List[List[int]]:
-    """Find all possible queen placements on the board"""
-    if row_index < board_size:
-        for col in range(board_size): 
-            if col not in queens_cols and 
-                row_index + col not in diag1 and
-                row_index - col not in diag2:
-                yield from queens(
-                    board_size, row_index+1, 
-                    queens_cols + [col], 
-                    diag1 + [row_index+col],
-                    diag2 + [row_index-col]
-                )
+if not sys.argv[1].isdigit():
+    print("N must be a number")
+    exit(1)
+
+if int(sys.argv[1]) < 4:
+    print("N must be at least 4")
+    exit(1)
+
+n = int(sys.argv[1])
+
+
+def queens(n, i=0, a=[], b=[], c=[]):
+    """ find possible positions for the puzzle solution"""
+    if i < n:
+        for j in range(n):
+            if j not in a and i + j not in b and i - j not in c:
+                yield from queens(n, i + 1, a + [j], b + [i + j], c + [i - j])
     else:
-        yield queens_cols
+        yield a
 
-def solve(board_size: int) -> None:
-    """Solve the N Queens problem and print solutions"""
-    for solution in queens(board_size):
-        print(solution)
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("n", type=int, help="Board size")
-    args = parser.parse_args()
-    
-    n = args.n
-    validate_input(n)
-    
-    solve(n)
+def solve(n):
+    """ now solve the puzzle """
+    k = []
+    i = 0
+    for solution in queens(n, 0):
+        for s in solution:
+            k.append([i, s])
+            i += 1
+        print(k)
+        k = []
+        i = 0
+
+
+solve(n)
