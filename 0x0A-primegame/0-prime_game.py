@@ -1,47 +1,55 @@
 #!/usr/bin/python3
+"""Prime Game - Maria and Ben are playing a game"""
 
-def is_prime(n):
-    """
-    Checks if a number is prime.
-    """
-    if n < 2:
-        return False
-    for i in range(2, int(n ** 0.5) + 1):
-        if n % i == 0:
-            return False
-    return True
 
-def isWinner(x, nums):
+def isWinner(rounds, numbers):
     """
-    Determines the winner of the Prime Game.
-    
+    Determine the winner of the Prime Game.
+
     Args:
-        x (int): The number of rounds.
-        nums (list): The array of n for each round.
-    
+        rounds (int): The number of rounds.
+        numbers (list): The list of numbers for each round.
+
     Returns:
         str: The name of the player who won the most rounds.
         None: If the winner cannot be determined.
     """
-    if x <= 0 or any(n <= 0 for n in nums):
+    if rounds <= 0 or numbers is None:
         return None
-    
-    maria_wins = 0
+    if rounds != len(numbers):
+        return None
+
     ben_wins = 0
-    
-    for n in nums:
-        primes = [i for i in range(1, n+1) if is_prime(i)]
-        while primes:
-            if len(primes) % 2 == 1:
-                ben_wins += 1
-                primes = [p for p in primes if p > primes[0]]
-            else:
-                maria_wins += 1
-                primes = [p for p in primes if p > primes[0]]
-    
+    maria_wins = 0
+
+    # Create a list to store prime number flags
+    prime_flags = [1 for _ in range(max(numbers) + 1)]
+    prime_flags[0], prime_flags[1] = 0, 0
+    for i in range(2, len(prime_flags)):
+        remove_multiples(prime_flags, i)
+
+    for num in numbers:
+        if sum(prime_flags[:num + 1]) % 2 == 0:
+            ben_wins += 1
+        else:
+            maria_wins += 1
     if ben_wins > maria_wins:
         return "Ben"
-    elif maria_wins > ben_wins:
+    if maria_wins > ben_wins:
         return "Maria"
-    else:
-        return None
+    return None
+
+
+def remove_multiples(flags, x):
+    """
+    Remove multiples of a prime number from the prime_flags list.
+
+    Args:
+        flags (list): The list of prime number flags.
+        x (int): The prime number.
+    """
+    for i in range(2, len(flags)):
+        try:
+            flags[i * x] = 0
+        except (ValueError, IndexError):
+            break
