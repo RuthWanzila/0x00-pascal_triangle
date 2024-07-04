@@ -1,61 +1,47 @@
 #!/usr/bin/python3
 
+def is_prime(n):
+    """
+    Checks if a number is prime.
+    """
+    if n < 2:
+        return False
+    for i in range(2, int(n ** 0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+
 def isWinner(x, nums):
     """
     Determines the winner of the Prime Game.
-
+    
     Args:
         x (int): The number of rounds.
-        nums (list): A list of integers representing upper limit of each round.
-
+        nums (list): The array of n for each round.
+    
     Returns:
-        str: The name of the player that won the most rounds.
+        str: The name of the player who won the most rounds.
         None: If the winner cannot be determined.
     """
-    if not x or not nums:
+    if x <= 0 or any(n <= 0 for n in nums):
         return None
-
-    winners = [0, 0]  # Maria, Ben
-
+    
+    maria_wins = 0
+    ben_wins = 0
+    
     for n in nums:
-        primes = [True] * (n + 1)
-        primes[0] = primes[1] = False
-
-        # Find all prime numbers up to n using the Sieve of Eratosthenes
-        for i in range(2, int(n ** 0.5) + 1):
-            if primes[i]:
-                for j in range(i * i, n + 1, i):
-                    primes[j] = False
-
-        available = [i for i in range(1, n + 1) if primes[i]]
-        player = 0  # 0: Maria, 1: Ben
-
-        while available:
-            if not available:
-                break
-
-            if player == 0:  # Maria's turn
-                for prime in available:
-                    if all(num % prime != 0 for num in available):
-                        available.remove(prime)
-                        break
-                else:
-                    winners[1] += 1
-                    break
-            else:  # Ben's turn
-                for prime in available:
-                    if all(num % prime != 0 for num in available):
-                        available.remove(prime)
-                        break
-                else:
-                    winners[0] += 1
-                    break
-
-            player = 1 - player
-
-    if winners[0] > winners[1]:
+        primes = [i for i in range(1, n+1) if is_prime(i)]
+        while primes:
+            if len(primes) % 2 == 0:
+                ben_wins += 1
+                primes = [p for p in primes if p > primes[0]]
+            else:
+                maria_wins += 1
+                primes = [p for p in primes if p > primes[0]]
+    
+    if maria_wins > ben_wins:
         return "Maria"
-    elif winners[1] > winners[0]:
+    elif ben_wins > maria_wins:
         return "Ben"
     else:
         return None
