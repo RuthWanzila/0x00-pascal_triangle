@@ -32,16 +32,16 @@ def isWinner(x, nums):
     for n in nums:
         primes = [i for i in range(1, n+1) if is_prime(i)]
         while primes:
-            if len(primes) % 2 == 0:
+            if len(primes) % 2 == 1:
                 ben_wins += 1
                 primes = [p for p in primes if p > primes[0]]
             else:
                 maria_wins += 1
                 primes = [p for p in primes if p > primes[0]]
     
-    if maria_wins > ben_wins:
-        return "Maria"
-    elif ben_wins > maria_wins:
+    if ben_wins > maria_wins:
         return "Ben"
+    elif maria_wins > ben_wins:
+        return "Maria"
     else:
         return None
